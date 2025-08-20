@@ -1,11 +1,12 @@
 import express from 'express'
+import auth from '../middlewares/auth'
 import { createTodos, listTodos, updateTodos, deleteTodos } from '../controllers/todo.controller'
 import { validateId } from '../middlewares/todoValidations'
 const server = express();
 server.use(express.json());
 
-server.post('/', createTodos);
-server.get('/', listTodos);
-server.patch('/:id', validateId, updateTodos);
-server.delete('/:id', validateId,  deleteTodos);
+server.post('/', auth, createTodos);
+server.get('/', auth, listTodos);
+server.patch('/:id', auth, validateId, updateTodos);
+server.delete('/:id', auth, validateId, deleteTodos);
 export default server;  

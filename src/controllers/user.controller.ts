@@ -10,7 +10,7 @@ export const register = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
     const exists = await userModel.findOne({ email });
     if (exists) {
-        return res.status(409).json({ message: "Email already in use" });
+        return res.status(409).json({ error: "Email already in use" });
     }
     const hashed = await bcrypt.hash(password, 10);
     await userModel.create({
@@ -25,11 +25,11 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
     if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ error: "Invalid credentials" });
     }
-    const pass = bcrypt.compare(password, user.password);
+    const pass = await bcrypt.compare(password, user.password);
     if (!pass) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ error: "Invalid credentials" });
     }
     const token = jwt.sign(
         { userId: user._id, name: user.name },

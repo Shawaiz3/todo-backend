@@ -2,7 +2,13 @@ import express from 'express'
 import joi from "joi";
 
 const TodobodySchema = joi.object({
-    task: joi.string().strict().required()
+    status: joi.string().valid("pending", "completed"),
+    task: joi.string().when("status", {
+        is: joi.exist(),        // if status is present
+        then: joi.optional(),   // task becomes optional
+        otherwise: joi.required() // if status is NOT present → task required
+    })
+
 });
 const UserbodySchema = joi.object({
     name: joi.string().strict(),

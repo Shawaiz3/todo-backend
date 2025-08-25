@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 type todoType = Document & {
     task: string
-    userId: mongoose.Types.ObjectId; 
+    userId: mongoose.Types.ObjectId;
+    status: string
 }
 const todoSchema = new mongoose.Schema<todoType>({
     task: {
@@ -12,6 +13,11 @@ const todoSchema = new mongoose.Schema<todoType>({
         type: mongoose.Schema.Types.ObjectId, // foreign key
         ref: "User",
         required: true
+    },
+    status: {
+        type: String,
+        enum: ["pending", "completed"],
+        default: "pending"
     }
 
 }, { timestamps: true })

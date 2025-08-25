@@ -15,6 +15,9 @@ export const createTodos = async (req: AuthRequest, res: Response) => {
 
 export const listTodos = async (req: AuthRequest, res: Response) => {
     const data = await todoModel.find({ userId: req.user?.userId });
+    if (data.length == 0 ) {
+        res.status(200).json({ message: `No data found!` });
+    }
     res.status(200).json({ data });
 }
 

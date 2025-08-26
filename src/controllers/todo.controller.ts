@@ -2,8 +2,14 @@ import { Request, Response } from "express";
 import todoModel from "../models/todo.model";
 
 export interface AuthRequest extends Request {
-    user?: { userId: string };
+  user?: {
+    userId: string;
+    role: string;   
+    name?: string;
+    email?: string;
+  };
 }
+
 
 export const createTodos = async (req: AuthRequest, res: Response) => {
     await todoModel.create({
@@ -28,7 +34,7 @@ export const listTodos = async (req: AuthRequest, res: Response) => {
 
 export const updateTodos = async (req: Request, res: Response) => {
     const id = req.params.id;
-    const {task , status} = req.body;
+    const { task, status } = req.body;
     await todoModel.findByIdAndUpdate(id, { task, status });
     res.status(200).json({ message: `Updated record at id = ${id}` });
 }

@@ -15,9 +15,9 @@ const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
         if (typeof bearerHeader != 'undefined') {
             const token = bearerHeader.split(' ')[1]; // To remove bearer from token
 
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; name: string };
+            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; name: string; role: string };
             req.token = decoded;
-            req.user = decoded
+            req.user = { userId: decoded.userId, role: decoded.role };
             next();
 
         } else {
@@ -28,3 +28,10 @@ const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
     }
 }
 export default auth;
+
+export function isAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+    if (req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    next();
+}

@@ -3,6 +3,7 @@ type userType = Document & {
     name: string
     email: string
     password: string
+    role: string
 }
 const userSchema = new mongoose.Schema<userType>({
     name: {
@@ -17,6 +18,11 @@ const userSchema = new mongoose.Schema<userType>({
     password: {
         type: String,
         required: true
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"],   // only allowed values (only one can be selected)
+        default: "user"            // new users will be normal users by default
     }
 }, { timestamps: true })
 const userModel = mongoose.model<userType>("users", userSchema);

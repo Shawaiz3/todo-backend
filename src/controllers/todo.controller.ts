@@ -21,18 +21,20 @@ export const createTodos = async (req: AuthRequest, res: Response) => {
 };
 
 export const listTodos = async (req: AuthRequest, res: Response) => {
-    const status = req.query.status;
     const { error, value } = querySchema.validate(req.query);
 
     if (error) {
         return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { page, limit } = value; // now defaults are applied
+    const { page, limit, search, status} = value; // now defaults are applied
     const jump = (page - 1) * limit;
     const filter: any = { userId: req.user?.userId };
     if (status) {
         filter.status = String(status).toLowerCase(); // pending or completed
+    }
+    if (search && search.trim() !== "") {
+        filter.task = { $regex: search, $options: "i" };
     }
     const data = await todoModel.find(filter).skip(jump).limit(limit);
     if (data.length == 0) {

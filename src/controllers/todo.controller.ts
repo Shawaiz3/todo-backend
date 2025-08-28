@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import todoModel from "../models/todo.model";
+import { querySchema } from "../middlewares/queryValidation"
 
 export interface AuthRequest extends Request {
-  user?: {
-    userId: string;
-    role: string;   
-    name?: string;
-    email?: string;
-  };
+    user?: {
+        userId: string;
+        role: string;
+        name?: string;
+        email?: string;
+    };
 }
 
 
@@ -21,11 +22,19 @@ export const createTodos = async (req: AuthRequest, res: Response) => {
 
 export const listTodos = async (req: AuthRequest, res: Response) => {
     const status = req.query.status;
+    const { error, value } = querySchema.validate(req.query);
+
+    if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { page, limit } = value; // now defaults are applied
+    const jump = (page - 1) * limit;
     const filter: any = { userId: req.user?.userId };
     if (status) {
         filter.status = String(status).toLowerCase(); // pending or completed
     }
-    const data = await todoModel.find(filter);
+    const data = await todoModel.find(filter).skip(jump).limit(limit);
     if (data.length == 0) {
         res.status(200).json({ message: `No data found!` });
     }

@@ -12,11 +12,11 @@ export interface AuthRequest extends Request {
 
 
 export const createTodos = async (req: AuthRequest, res: Response) => {
-    await todoModel.create({
+    const taskCreated = await todoModel.create({
         task: req.body.task,
         userId: req.user?.userId
     })
-    res.status(201).json({ message: `Sucessfully Added task` });
+    res.status(201).json({ taskCreated });
 };
 
 export const listTodos = async (req: AuthRequest, res: Response) => {

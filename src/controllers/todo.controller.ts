@@ -27,7 +27,7 @@ export const listTodos = async (req: AuthRequest, res: Response) => {
         return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { page, limit, search, status} = value; // now defaults are applied
+    const { page, limit, search, status } = value; // now defaults are applied
     const jump = (page - 1) * limit;
     const filter: any = { userId: req.user?.userId };
     if (status) {
@@ -36,11 +36,16 @@ export const listTodos = async (req: AuthRequest, res: Response) => {
     if (search && search.trim() !== "") {
         filter.task = { $regex: search, $options: "i" };
     }
+    const totalTodos = await todoModel.countDocuments(filter); // For total no of todos
+
     const data = await todoModel.find(filter).skip(jump).limit(limit);
     if (data.length == 0) {
         res.status(200).json({ message: `No data found!` });
     }
-    res.status(200).json({ data });
+    res.status(200).json({
+        totalTodos,
+        data
+    });
 }
 
 export const updateTodos = async (req: Request, res: Response) => {

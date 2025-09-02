@@ -63,6 +63,43 @@ export const listAllTodos = async (req: AuthRequest, res: Response) => {
     }
     res.status(200).json({
         totalTodos,
-        data    
+        data
     });
+}
+
+export const getTodosPerUser = async (req: Request, res: Response) => {
+    try {
+        const result = await todoModel.aggregate([
+            { $group: { _id: "$userId", totalTodos: { $sum: 1 } } },
+            {
+                $lookup: {
+                    from: "users",               // collection name in MongoDB (plural, lowercase!)
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            { $unwind: "$user" },
+            { $project: { _id: 0, userName: "$user.name", userEmail: "$user.email", totalTodos: 1 } }
+        ]);
+
+        res.status(200).json({ data: result });
+    } catch (err) {
+        res.status(500).json({ message: "Aggregation failed", error: err });
+    }
+};
+
+export const averageTodosByUsers = async (req: Request, res: Response) => {
+    try {
+        const result = await todoModel.aggregate([
+            { $group: { _id: "$userId", total: { $sum: 1 } } },
+            { $group: { _id: null, avgTodos: { $avg: "$total" } } },
+            { $project: { _id: 0, avgTodos: 1 } } // remove _id
+
+        ]);
+
+        res.json(result[0] || { avgTodos: 0 });
+    } catch (err) {
+        res.status(500).json({ message: "Aggregation failed", error: err });
+    }
 }

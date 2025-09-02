@@ -60,3 +60,23 @@ export const deleteTodos = async (req: Request, res: Response) => {
     await todoModel.findByIdAndDelete(id);
     res.status(200).send({ message: `Deleted record at id = ${id}` });
 }
+
+export const dailyCompletedTaskCount = async (req: Request, res: Response) => {
+    try {
+        const stats = await todoModel.aggregate([
+            { $match: { status: "completed" } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    total: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        res.json({ success: true, data: stats });
+    } catch (err) {
+        console.error("Aggregation error:", err);
+        res.status(500).json({ success: false, message: "Aggregation error" });
+    }
+}

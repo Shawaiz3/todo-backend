@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "mergeTodos": "ts-node scripts/mergeTodos.ts",
     "dev": "nodemon src/index.ts"
   },
   "keywords": [],

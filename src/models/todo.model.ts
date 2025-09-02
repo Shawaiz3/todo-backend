@@ -3,6 +3,8 @@ type todoType = Document & {
     task: string
     userId: mongoose.Types.ObjectId;
     status: string
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 const todoSchema = new mongoose.Schema<todoType>({
     task: {

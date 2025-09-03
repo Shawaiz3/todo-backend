@@ -5,5 +5,6 @@ export const querySchema = joi.object({
     limit: joi.number().integer().min(1).default(5),
     search: joi.string().strict().optional(),
     status: joi.string().valid('pending', 'completed').optional(),
-    last24h: joi.string().valid('true','false').optional()
+    last24h: joi.string().valid('true','false').optional(),
+    sort: joi.string().valid("latest", "oldest").default("latest")
 });

@@ -27,7 +27,7 @@ export const listTodos = async (req: AuthRequest, res: Response) => {
         return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { page, limit, search, status } = value; // now defaults are applied
+    const { page, limit, search, status, sort } = value; // now defaults are applied
     const jump = (page - 1) * limit;
     const filter: any = { userId: req.user?.userId };
     if (status) {
@@ -38,7 +38,9 @@ export const listTodos = async (req: AuthRequest, res: Response) => {
     }
     const totalTodos = await todoModel.countDocuments(filter); // For total no of todos
 
-    const data = await todoModel.find(filter).skip(jump).limit(limit);
+    const sortOrder = sort === "oldest" ? 1 : -1;     // Default sorting = latest first
+
+    const data = await todoModel.find(filter).skip(jump).limit(limit).sort({ createdAt: sortOrder });;
     if (data.length == 0) {
         res.status(200).json({ message: `No data found!` });
     }
@@ -73,7 +75,9 @@ export const dailyCompletedTaskCount = async (req: Request, res: Response) => {
             },
             { $sort: { _id: 1 } }
         ]);
-
+        if (stats.length == 0) {
+            res.status(200).json({ message: `No data found!` });
+        }
         res.json({ success: true, data: stats });
     } catch (err) {
         console.error("Aggregation error:", err);

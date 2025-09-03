@@ -10,7 +10,7 @@ export const getUsers = async (req: Request, res: Response) => {
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
-        const { page, limit, search } = value; // now defaults are applied
+        const { page, limit, search, sort } = value; // now defaults are applied
         const jump = (page - 1) * limit;
 
         const filter: any = {};
@@ -18,8 +18,9 @@ export const getUsers = async (req: Request, res: Response) => {
         if (search && search.trim() !== "") {
             filter.name = { $regex: search, $options: "i" };
         }
+        const sortOrder = sort === "oldest" ? 1 : -1;     // Default sorting = latest first
         const totalUsers = await userModel.countDocuments(filter); // For total no of users
-        const users = await userModel.find(filter, "name email").skip(jump).limit(limit); // only username + email
+        const users = await userModel.find(filter, "name email").skip(jump).limit(limit).sort({ createdAt: sortOrder }); // only username + email
         if (users.length == 0) {
             res.status(200).json({ message: `No data found!` });
         }
@@ -38,7 +39,7 @@ export const listAllTodos = async (req: AuthRequest, res: Response) => {
     if (error) {
         return res.status(400).json({ message: error.details[0].message });
     }
-    const { page, limit, search, status, last24h } = value; // now defaults are applied
+    const { page, limit, search, status, last24h, sort } = value; // now defaults are applied
     const jump = (page - 1) * limit;
 
     const filter: any = {};
@@ -55,8 +56,9 @@ export const listAllTodos = async (req: AuthRequest, res: Response) => {
     if (search && search.trim() !== "") {
         filter.task = { $regex: search, $options: "i" };
     }
+    const sortOrder = sort === "oldest" ? 1 : -1;     // Default sorting = latest first
     const totalTodos = await todoModel.countDocuments(filter); // For total no of todos
-    const data = await todoModel.find(filter).skip(jump).limit(limit);
+    const data = await todoModel.find(filter).skip(jump).limit(limit).sort({ createdAt: sortOrder });
 
     if (data.length == 0) {
         res.status(200).json({ message: `No data found!` });

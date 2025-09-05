@@ -105,3 +105,24 @@ export const averageTodosByUsers = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Aggregation failed", error: err });
     }
 }
+export const dailyCompletedTaskCount = async (req: Request, res: Response) => {
+    try {
+        const stats = await todoModel.aggregate([
+            { $match: { status: "completed" } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$completedAt" } },
+                    total: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        if (stats.length == 0) {
+            res.status(200).json({ message: `No data found!` });
+        }
+        res.json({ success: true, data: stats });
+    } catch (err) {
+        console.error("Aggregation error:", err);
+        res.status(500).json({ success: false, message: "Aggregation error" });
+    }
+}

@@ -51,36 +51,28 @@ export const listTodos = async (req: AuthRequest, res: Response) => {
 }
 
 export const updateTodos = async (req: Request, res: Response) => {
-    const id = req.params.id;
-    const { task, status } = req.body;
-    await todoModel.findByIdAndUpdate(id, { task, status });
-    res.status(200).json({ message: `Updated record at id = ${id}` });
-}
+  const id = req.params.id;
+  const { task, status } = req.body;
+
+  // Build the update object
+  const updateData: any = { task, status };
+
+  // If status is being updated to "completed", set completedAt timestamp
+  if (status === "completed") {
+    updateData.completedAt = new Date();
+  } else if (status === "pending") {
+    // optional: clear completedAt if reverting back to pending
+    updateData.completedAt = null;
+  }
+
+  await todoModel.findByIdAndUpdate(id, updateData, { new: true });
+
+  res.status(200).json({ message: `Updated record at id = ${id}` });
+};
+
 
 export const deleteTodos = async (req: Request, res: Response) => {
     const id = req.params.id;
     await todoModel.findByIdAndDelete(id);
     res.status(200).send({ message: `Deleted record at id = ${id}` });
-}
-
-export const dailyCompletedTaskCount = async (req: Request, res: Response) => {
-    try {
-        const stats = await todoModel.aggregate([
-            { $match: { status: "completed" } },
-            {
-                $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                    total: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-        if (stats.length == 0) {
-            res.status(200).json({ message: `No data found!` });
-        }
-        res.json({ success: true, data: stats });
-    } catch (err) {
-        console.error("Aggregation error:", err);
-        res.status(500).json({ success: false, message: "Aggregation error" });
-    }
 }

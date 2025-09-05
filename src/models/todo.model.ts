@@ -3,6 +3,7 @@ type todoType = Document & {
     task: string
     userId: mongoose.Types.ObjectId;
     status: string
+    completedAt: Date;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -15,6 +16,9 @@ const todoSchema = new mongoose.Schema<todoType>({
         type: mongoose.Schema.Types.ObjectId, // foreign key
         ref: "User",
         required: true
+    },
+    completedAt: {
+        type: Date
     },
     status: {
         type: String,

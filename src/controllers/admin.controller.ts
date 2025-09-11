@@ -26,7 +26,7 @@ export const getUsers = async (req: Request, res: Response) => {
             { $match: filter }, // Apply search filter
             {
                 $lookup: {
-                    from: "todos",
+                    from: "tasks",
                     localField: "_id",
                     foreignField: "userId",
                     as: "todos"

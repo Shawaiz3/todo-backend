@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv"
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import connectDB from "./config/db"
 import todoRoutes from "./routes/todoRoutes"
@@ -10,6 +11,7 @@ import adminRoutes from "./routes/adminRoutes"
 dotenv.config();
 connectDB();
 const server = express();
+server.use(cookieParser());
 
 server.use(cors({
     origin: "http://localhost:5173",

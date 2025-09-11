@@ -49,7 +49,7 @@ export const login = async (req: Request, res: Response) => {
 }
 
 export const refresh = async (req: Request, res: Response) => {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) return res.status(401).json({ error: "No refresh token provided" });
 
     // Find user with this refresh token

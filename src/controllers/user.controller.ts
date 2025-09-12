@@ -74,10 +74,14 @@ export const refresh = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
     try {
-        const { refreshToken } = req.body;
+        const refreshToken = req.cookies?.refreshToken;
+        if (!refreshToken) {
+            return res.status(400).json({ error: "No refresh token found" });
+        }
         await userModel.updateOne({ refreshToken }, { $unset: { refreshToken: "" } });
+        res.clearCookie("refreshToken");
         return res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         return res.status(403).json({ error: "Invalid or no refresh token" });
     }
-}
+};
